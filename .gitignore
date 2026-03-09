@@ -10,3 +10,4 @@ MemoryCaptures/
 *.apk
 *.aab
 *.unitypackage
+.fake
