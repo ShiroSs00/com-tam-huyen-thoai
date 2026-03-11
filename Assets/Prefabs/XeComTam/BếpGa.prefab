@@ -64,8 +64,62 @@ PrefabInstance:
       propertyPath: m_Name
       value: "B\u1EBFpGa"
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: baae2252b23a8514bacb8c051973ab8b, type: 3}
+      propertyPath: m_TagString
+      value: Interactable
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: baae2252b23a8514bacb8c051973ab8b, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 9194013178828934160}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: baae2252b23a8514bacb8c051973ab8b, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 288445203885810631}
   m_SourcePrefab: {fileID: 100100000, guid: baae2252b23a8514bacb8c051973ab8b, type: 3}
+--- !u!1 &1853196795066736130 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: baae2252b23a8514bacb8c051973ab8b, type: 3}
+  m_PrefabInstance: {fileID: 1546574685449577299}
+  m_PrefabAsset: {fileID: 0}
+--- !u!64 &9194013178828934160
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1853196795066736130}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 5
+  m_Convex: 1
+  m_CookingOptions: 30
+  m_Mesh: {fileID: -3362887337151679087, guid: baae2252b23a8514bacb8c051973ab8b, type: 3}
+--- !u!114 &288445203885810631
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1853196795066736130}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8d7448dc98290284da9437d999a05870, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::InteractableObject
+  interactName: "B\u1EBFp Ga"
+  interactHint: "Nh\u1EA5n [E] \u0111\u1EC3 xem"
+  onInteract:
+    m_PersistentCalls:
+      m_Calls: []

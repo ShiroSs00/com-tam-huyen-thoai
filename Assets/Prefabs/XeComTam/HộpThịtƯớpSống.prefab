@@ -64,8 +64,67 @@ PrefabInstance:
       propertyPath: m_Name
       value: "H\u1ED9pTh\u1ECBt\u01AF\u1EDBpS\u1ED1ng"
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 39982c81e0ed67545937f2bbe3769116, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 39982c81e0ed67545937f2bbe3769116, type: 3}
+      propertyPath: m_TagString
+      value: Interactable
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 39982c81e0ed67545937f2bbe3769116, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 9095774568104823416}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 39982c81e0ed67545937f2bbe3769116, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 5938931504640478086}
   m_SourcePrefab: {fileID: 100100000, guid: 39982c81e0ed67545937f2bbe3769116, type: 3}
+--- !u!1 &8131727066545592860 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 39982c81e0ed67545937f2bbe3769116, type: 3}
+  m_PrefabInstance: {fileID: 8942138398918584141}
+  m_PrefabAsset: {fileID: 0}
+--- !u!64 &9095774568104823416
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8131727066545592860}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 5
+  m_Convex: 1
+  m_CookingOptions: 30
+  m_Mesh: {fileID: -3362887337151679087, guid: 39982c81e0ed67545937f2bbe3769116, type: 3}
+--- !u!114 &5938931504640478086
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8131727066545592860}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 59d32050dc3e5c54daddc4276152ce06, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::IngredientSource
+  sourceName: Nguon nguyen lieu
+  hint: Nhan [E] de lay
+  ingredientPrefab: {fileID: 3479128280483608941, guid: e371d69e65f69f94b916f0f87c2b96bd, type: 3}
+  ingredientType: 2
+  requiresCooking: 1
+  cooldown: 0.5

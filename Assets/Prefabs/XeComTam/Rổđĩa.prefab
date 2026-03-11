@@ -64,8 +64,88 @@ PrefabInstance:
       propertyPath: m_Name
       value: "R\u1ED5\u0111\u0129a"
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 7f83d0ac764623a42953cdcc9208a9ba, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 7f83d0ac764623a42953cdcc9208a9ba, type: 3}
+      propertyPath: m_TagString
+      value: Interactable
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 7f83d0ac764623a42953cdcc9208a9ba, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 5501985467677805550}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 7f83d0ac764623a42953cdcc9208a9ba, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 4789830351723680206}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 7f83d0ac764623a42953cdcc9208a9ba, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 619661189051603689}
   m_SourcePrefab: {fileID: 100100000, guid: 7f83d0ac764623a42953cdcc9208a9ba, type: 3}
+--- !u!1 &8807582631607155527 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 7f83d0ac764623a42953cdcc9208a9ba, type: 3}
+  m_PrefabInstance: {fileID: 8573649092894590486}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &5501985467677805550
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8807582631607155527}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 59d32050dc3e5c54daddc4276152ce06, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::IngredientSource
+  sourceName: Nguon nguyen lieu
+  hint: Nhan [E] de lay
+  ingredientPrefab: {fileID: 6788509457883631213, guid: daaf4d0f4eeaffe48b15cede76169aa4, type: 3}
+  ingredientType: 8
+  requiresCooking: 0
+  handScale: 0.4
+  cooldown: 0.5
+--- !u!64 &4789830351723680206
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8807582631607155527}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 5
+  m_Convex: 1
+  m_CookingOptions: 30
+  m_Mesh: {fileID: -3362887337151679087, guid: 7f83d0ac764623a42953cdcc9208a9ba, type: 3}
+--- !u!114 &619661189051603689
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8807582631607155527}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8d7448dc98290284da9437d999a05870, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::InteractableObject
+  interactName: "R\u1ED5\u0111\u0129a"
+  interactHint: "Nh\u1EA5n [E] \u0111\u1EC3 xem"
+  onInteract:
+    m_PersistentCalls:
+      m_Calls: []

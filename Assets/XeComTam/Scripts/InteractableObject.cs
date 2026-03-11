@@ -27,12 +27,23 @@ public class InteractableObject : MonoBehaviour, IInteractable
     // ── Unity lifecycle ───────────────────────────────────────────────────────
     private void Awake()
     {
-        // Đặt layer đúng để PlayerInteraction raycast chính xác
         int layer = LayerMask.NameToLayer("Interactable");
         if (layer >= 0)
-            gameObject.layer = layer;
+        {
+            // Set layer cho root VÀ tất cả children (vì FBX mesh thường nằm ở child)
+            SetLayerRecursive(gameObject, layer);
+        }
         else
-            Debug.LogWarning("[InteractableObject] Chưa có layer 'Interactable'. " +
-                             "Vào Edit → Project Settings → Tags and Layers để tạo.");
+        {
+            Debug.LogWarning("[InteractableObject] Chua co layer 'Interactable'. " +
+                             "Vao Edit → Project Settings → Tags and Layers de tao.");
+        }
+    }
+
+    private static void SetLayerRecursive(GameObject go, int layer)
+    {
+        go.layer = layer;
+        foreach (Transform child in go.transform)
+            SetLayerRecursive(child.gameObject, layer);
     }
 }

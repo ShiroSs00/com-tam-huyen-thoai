@@ -158,9 +158,46 @@ public static class ColliderSetupTool
 
     private static void AddMeshColliderConvex(GameObject go)
     {
+        // Neu root da co collider → bo qua
         if (go.GetComponent<Collider>() != null) return;
-        var mc = go.AddComponent<MeshCollider>();
-        mc.convex = true;
+
+        // Thu them MeshCollider vao tung child co MeshFilter
+        bool added = false;
+        foreach (MeshFilter mf in go.GetComponentsInChildren<MeshFilter>())
+        {
+            if (mf.sharedMesh == null) continue;
+            if (mf.GetComponent<Collider>() != null) continue;
+            var mc = mf.gameObject.AddComponent<MeshCollider>();
+            mc.convex = true;
+            added = true;
+        }
+
+        // Fallback: neu khong co MeshFilter nao → dung BoxCollider bao quanh Renderer.bounds
+        if (!added)
+        {
+            AddBoxColliderFromBounds(go);
+        }
+    }
+
+    /// <summary>Them BoxCollider o root, size theo tong bounds cua tat ca Renderer con.</summary>
+    private static void AddBoxColliderFromBounds(GameObject go)
+    {
+        if (go.GetComponent<Collider>() != null) return;
+
+        Renderer[] renderers = go.GetComponentsInChildren<Renderer>();
+        if (renderers.Length == 0) return;
+
+        Bounds combined = renderers[0].bounds;
+        for (int i = 1; i < renderers.Length; i++)
+            combined.Encapsulate(renderers[i].bounds);
+
+        var box = go.AddComponent<BoxCollider>();
+        // Chuyen bounds tu world sang local space cua root
+        box.center = go.transform.InverseTransformPoint(combined.center);
+        box.size   = Vector3.Scale(combined.size,
+                       new Vector3(1f / go.transform.lossyScale.x,
+                                   1f / go.transform.lossyScale.y,
+                                   1f / go.transform.lossyScale.z));
     }
 
     private static void EnsureTag(string tag)
