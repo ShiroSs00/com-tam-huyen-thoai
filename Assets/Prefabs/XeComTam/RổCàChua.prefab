@@ -82,9 +82,6 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 65aab7934dc24c04a869fbaa5164e8e0, type: 3}
       insertIndex: -1
       addedObject: {fileID: 4093248152823463455}
-    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 65aab7934dc24c04a869fbaa5164e8e0, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 2877624770752622596}
   m_SourcePrefab: {fileID: 100100000, guid: 65aab7934dc24c04a869fbaa5164e8e0, type: 3}
 --- !u!1 &4512434444592421712 stripped
 GameObject:
@@ -132,20 +129,3 @@ MeshCollider:
   m_Convex: 1
   m_CookingOptions: 30
   m_Mesh: {fileID: -3362887337151679087, guid: 65aab7934dc24c04a869fbaa5164e8e0, type: 3}
---- !u!114 &2877624770752622596
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4512434444592421712}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8d7448dc98290284da9437d999a05870, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::InteractableObject
-  interactName: "R\u1ED5 C\xE0 Chua"
-  interactHint: "Nh\u1EA5n [E] \u0111\u1EC3 xem"
-  onInteract:
-    m_PersistentCalls:
-      m_Calls: []

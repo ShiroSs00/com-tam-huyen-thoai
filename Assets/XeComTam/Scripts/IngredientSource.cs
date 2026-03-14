@@ -44,13 +44,6 @@ public class IngredientSource : MonoBehaviour, IInteractable
 
     public void Interact()
     {
-        if (Time.time < nextAvailableTime) return;
-        if (ingredientPrefab == null)
-        {
-            Debug.LogError($"[IngredientSource] {sourceName}: Chua gan ingredientPrefab!");
-            return;
-        }
-
         PlayerInventory inv = FindObjectOfType<PlayerInventory>();
         if (inv == null) return;
 
@@ -66,9 +59,7 @@ public class IngredientSource : MonoBehaviour, IInteractable
             return;
         }
 
-        // Nguyen lieu an ngay (Com, LatCaChua, LatDuaLeo):
-        //  - Dang cam Dia → them thang
-        //  - Tay trong → cam len
+        // Nguyen lieu an ngay: Dang cam Dia → them thang
         if (!inv.IsEmpty && inv.HeldItem?.IngredientType == IngredientType.Dia)
         {
             PlateItem plate = inv.HeldItem.GetComponent<PlateItem>();
@@ -76,13 +67,8 @@ public class IngredientSource : MonoBehaviour, IInteractable
             {
                 if (plate.TryAddIngredient(ingredientType))
                 {
-                    SpawnVisualOnPlate(inv.HeldItem.transform, plate.Ingredients.Count);
                     nextAvailableTime = Time.time + cooldown;
                     Debug.Log($"[IngredientSource] Da them {ingredientType} vao dia. ({plate.Ingredients.Count}/{plate.RequiredCount})");
-                }
-                else
-                {
-                    Debug.Log($"[IngredientSource] Dia day hoac da co {ingredientType} roi.");
                 }
             }
             return;
@@ -90,20 +76,16 @@ public class IngredientSource : MonoBehaviour, IInteractable
 
         // Tay trong
         if (inv.IsEmpty)
-        {
             SpawnToHand(inv);
-        }
         else
-        {
-            Debug.Log("[IngredientSource] Tay dang cam do. Dat xuong hoac cam dia truoc.");
-        }
+            Debug.Log("[IngredientSource] Tay dang cam do.");
     }
 
     private void SpawnToHand(PlayerInventory inv)
     {
         Vector3 spawnPos = transform.position + Vector3.up * 0.5f;
-        GameObject spawned = Instantiate(ingredientPrefab, spawnPos, Quaternion.identity);
-        spawned.transform.localScale = Vector3.one * handScale; // Set scale khi cam
+        GameObject spawned = Instantiate(ingredientPrefab, spawnPos, ingredientPrefab.transform.rotation);
+        TransformUtils.ForceEnableRenderers(spawned); // Dam bao mesh fbx duoc bat
 
         IngredientPickup pickup = spawned.GetComponent<IngredientPickup>();
         if (pickup == null) pickup = spawned.AddComponent<IngredientPickup>();
@@ -111,28 +93,7 @@ public class IngredientSource : MonoBehaviour, IInteractable
 
         inv.PickUp(pickup);
         nextAvailableTime = Time.time + cooldown;
-        Debug.Log($"[IngredientSource] Da cam: {ingredientType} (scale={handScale})");
+        Debug.Log($"[IngredientSource] Da cam: {ingredientType}");
     }
 
-    private void SpawnVisualOnPlate(Transform plateTransform, int count)
-    {
-        if (ingredientPrefab == null) return;
-        GameObject visual = Instantiate(ingredientPrefab, plateTransform);
-
-        // Xep nguyen lieu quanh tam dia theo hinh quat
-        float angle = (count - 1) * 60f;
-        float r = 0.3f; // world-relative radius tren mat dia
-        visual.transform.localPosition = new Vector3(
-            Mathf.Cos(angle * Mathf.Deg2Rad) * r,
-            0.05f,
-            Mathf.Sin(angle * Mathf.Deg2Rad) * r);
-        visual.transform.localRotation = Quaternion.identity;
-        visual.transform.localScale    = Vector3.one * 0.8f;
-
-        // Tat collider va script de khong bi pickup
-        foreach (var col in visual.GetComponentsInChildren<Collider>())
-            col.enabled = false;
-        var p = visual.GetComponent<IngredientPickup>();
-        if (p) p.enabled = false;
-    }
 }
