@@ -65,6 +65,10 @@ PrefabInstance:
       value: "B\xE0nInox"
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 33905998b2abcbd41acc1097963cd43e, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 33905998b2abcbd41acc1097963cd43e, type: 3}
       propertyPath: m_TagString
       value: Interactable
       objectReference: {fileID: 0}

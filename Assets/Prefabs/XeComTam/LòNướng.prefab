@@ -25,7 +25,7 @@ Transform:
   m_GameObject: {fileID: 8410987113279080522}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.00779, z: -0}
+  m_LocalPosition: {x: 0, y: 0.008, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -152,6 +152,11 @@ MonoBehaviour:
   stationName: Tram nau
   acceptedInput: 2
   outputPrefab: {fileID: 5448404630254207077, guid: dca303fdb1427f0499e765907c9361bf, type: 3}
+  cookingVisualPrefab: {fileID: 3479128280483608941, guid: e371d69e65f69f94b916f0f87c2b96bd, type: 3}
+  rawOffsetPosition: {x: 0, y: 0, z: 0}
+  rawOffsetRotation: {x: 0, y: 0, z: 0}
+  cookedOffsetPosition: {x: -0.0008698654, y: 0.03, z: 0.1061628}
+  cookedOffsetRotation: {x: -101.673, y: 0, z: 0}
   outputType: 3
   cookTime: 5
   cookingSlot: {fileID: 867321702237618365}
