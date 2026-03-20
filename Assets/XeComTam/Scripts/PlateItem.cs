@@ -24,12 +24,12 @@ public struct PlateModelMapping
 /// </summary>
 public class PlateItem : MonoBehaviour
 {
-    // Cong thuc day du mot dia com tam
-    private static readonly HashSet<IngredientType> FULL_RECIPE = new HashSet<IngredientType>
+    [Header("Cấu hình Công Thức")]
+    [Tooltip("Danh sách nguyên liệu TỐI THIỂU để có thể bưng ra bàn")]
+    private static readonly HashSet<IngredientType> BASE_RECIPE = new HashSet<IngredientType>
     {
         IngredientType.Com,
         IngredientType.ThitChin,
-        IngredientType.TrungChien,
         IngredientType.LatCaChua,
         IngredientType.LatDuaLeo
     };
@@ -42,9 +42,9 @@ public class PlateItem : MonoBehaviour
 
     private GameObject currentVisualInstance;
 
-    public bool IsFull => addedIngredients.IsSupersetOf(FULL_RECIPE);
+    public bool IsReadyToServe => addedIngredients.IsSupersetOf(BASE_RECIPE);
     public IReadOnlyCollection<IngredientType> Ingredients => addedIngredients;
-    public int RequiredCount => FULL_RECIPE.Count;
+    public int RequiredCount => BASE_RECIPE.Count;
 
     private void Awake()
     {
@@ -69,10 +69,10 @@ public class PlateItem : MonoBehaviour
 
         addedIngredients.Add(type);
         UpdateVisuals();
-        Debug.Log($"[PlateItem] Them {type}. Con thieu: {GetMissingIngredients()}");
+        Debug.Log($"[PlateItem] Them {type}. Hop le de phuc vu: {IsReadyToServe}");
 
-        if (IsFull)
-            Debug.Log("[PlateItem] Dia day du! Dat len ban phuc vu.");
+        if (IsReadyToServe)
+            Debug.Log("[PlateItem] Dia da du Cung + Suon! Co the dat len ban phuc vu.");
 
         return true;
     }
@@ -134,9 +134,29 @@ public class PlateItem : MonoBehaviour
     public string GetMissingIngredients()
     {
         var missing = new List<string>();
-        foreach (var req in FULL_RECIPE)
+        foreach (var req in BASE_RECIPE)
             if (!addedIngredients.Contains(req))
                 missing.Add(req.ToString());
         return missing.Count == 0 ? "Khong co" : string.Join(", ", missing);
+    }
+
+    /// <summary>
+    /// Tính giá trị đĩa cơm dựa trên Base Price
+    /// Nếu Cơm Sườn Cà Chua Dưa Leo (không trứng) -> rẻ hơn 5k
+    /// Nếu có Trứng -> Base Price (Đầy đủ)
+    /// </summary>
+    public int CalculatePlateValue(int basePriceFullPlate)
+    {
+        bool hasEgg = addedIngredients.Contains(IngredientType.TrungChien);
+        
+        if (hasEgg)
+        {
+            return basePriceFullPlate; // Đĩa đầy đủ (VD: 35k)
+        }
+        else
+        {
+            // Trừ bớt tiền trứng (VD: 35k - 5k = 30k)
+            return Mathf.Max(0, basePriceFullPlate - 5000);
+        }
     }
 }

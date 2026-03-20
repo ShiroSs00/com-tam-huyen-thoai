@@ -23,6 +23,10 @@ public class FPSPlayerController : MonoBehaviour
     [Header("Animation")]
     [SerializeField] private Animator animator;
 
+    [Header("Audio")]
+    [SerializeField] private AudioClip walkSound;
+    private AudioSource audioSource;
+
     private CharacterController controller;
     private Vector2 moveInput;
     private Vector2 lookInput;
@@ -34,6 +38,11 @@ public class FPSPlayerController : MonoBehaviour
     {
         controller = GetComponent<CharacterController>();
         playerInteraction = GetComponent<PlayerInteraction>();
+        
+        audioSource = gameObject.AddComponent<AudioSource>();
+        audioSource.playOnAwake = false;
+        audioSource.spatialBlend = 0f; // 2D sound for the player's own footsteps
+        
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
     }
@@ -68,6 +77,23 @@ public class FPSPlayerController : MonoBehaviour
 
         yVelocity += gravity * Time.deltaTime;
         controller.Move(Vector3.up * yVelocity * Time.deltaTime);
+
+        // Handle walking audio
+        bool isMoving = moveInput.magnitude > 0.1f && grounded;
+        if (isMoving && walkSound != null)
+        {
+            audioSource.pitch = sprintHeld ? 1.4f : 1f;
+            if (!audioSource.isPlaying)
+            {
+                audioSource.clip = walkSound;
+                audioSource.loop = true;
+                audioSource.Play();
+            }
+        }
+        else if (!isMoving && audioSource.isPlaying && audioSource.clip == walkSound)
+        {
+            audioSource.Stop();
+        }
     }
 
     private void UpdateAnimator()

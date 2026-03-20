@@ -67,7 +67,7 @@ public class ServingTable : MonoBehaviour, IInteractable
             return;
         }
 
-        if (!plate.IsFull)
+        if (!plate.IsReadyToServe)
         {
             string currentIngs = string.Join(", ", plate.Ingredients);
             Debug.Log($"[ServingTable] Dia chua du nguyen lieu. Con thieu: {plate.GetMissingIngredients()} | Dang co: {currentIngs}");
@@ -129,8 +129,19 @@ public class ServingTable : MonoBehaviour, IInteractable
         {
             Destroy(plateOnTable.gameObject);
             plateOnTable = null;
-            Debug.Log("[ServingTable] Da don dia khoi ban.");
         }
+
+        // Failsafe: Dọn sạch mọi object còn sót lại đang làm con của plateSlot
+        // Đảm bảo đĩa cơm biến mất 100% về mặt thị giác dù có bị lỗi reference.
+        if (plateSlot != null)
+        {
+            for (int i = plateSlot.childCount - 1; i >= 0; i--)
+            {
+                Destroy(plateSlot.GetChild(i).gameObject);
+            }
+        }
+        
+        Debug.Log("[ServingTable] Da don dia khoi ban.");
     }
 }
 

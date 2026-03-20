@@ -95,3 +95,8 @@ MonoBehaviour:
     visualPrefab: {fileID: 6722697044183697099, guid: 6c52647ec2d42f049b15257098ff01e0, type: 3}
     localOffset: {x: 0.00014, y: 0.00077, z: -0.00115}
     localRotationOffset: {x: 19.116, y: 0.227, z: 0.532}
+  - modelName: "C\u01A1mS\u01B0\u1EDDn"
+    ingredients: 01000000030000000600000007000000
+    visualPrefab: {fileID: 3326403575006092217, guid: 2691b895459325347b1ed0ac5c0b735e, type: 3}
+    localOffset: {x: 0.0001, y: 0.005, z: -0.0004}
+    localRotationOffset: {x: 78.006, y: 1.032, z: 1.468}
