@@ -48,6 +48,10 @@ public class CookingStation : MonoBehaviour, IInteractable
     [SerializeField] private Slider progressSlider;
     [SerializeField] private GameObject progressBarRoot;
 
+    [Header("Audio")]
+    [SerializeField] private AudioClip cookingSound;
+    private AudioSource audioSource;
+
     // State
     private bool isCooking;
     private bool hasOutput;
@@ -185,6 +189,13 @@ public class CookingStation : MonoBehaviour, IInteractable
         if (progressBarRoot) progressBarRoot.SetActive(true);
         if (progressSlider)  progressSlider.value = 0f;
 
+        if (cookingSound != null && audioSource != null)
+        {
+            audioSource.clip = cookingSound;
+            audioSource.loop = true;
+            audioSource.Play();
+        }
+
         float elapsed = 0f;
         while (elapsed < cookTime)
         {
@@ -238,6 +249,10 @@ public class CookingStation : MonoBehaviour, IInteractable
         isCooking  = false;
         hasOutput  = true;
         if (progressSlider)  progressSlider.value = 1f;
+        
+        if (audioSource != null && audioSource.isPlaying)
+            audioSource.Stop();
+            
         Debug.Log($"[CookingStation] {stationName}: NAU XONG! Nhan E de lay {outputType}.");
     }
 
@@ -247,10 +262,19 @@ public class CookingStation : MonoBehaviour, IInteractable
         if (progressBarRoot) progressBarRoot.SetActive(false);
         if (currentIngredientVisual) Destroy(currentIngredientVisual);
         currentIngredientVisual = null;
+        
+        if (audioSource != null && audioSource.isPlaying)
+            audioSource.Stop();
     }
 
     private void Awake()
     {
         if (progressBarRoot) progressBarRoot.SetActive(false);
+        
+        audioSource = gameObject.AddComponent<AudioSource>();
+        audioSource.playOnAwake = false;
+        audioSource.spatialBlend = 1f; // 3D sound so it originates from the grill
+        audioSource.minDistance = 2f;
+        audioSource.maxDistance = 10f;
     }
 }

@@ -48,6 +48,19 @@ public class PlayerInventory : MonoBehaviour
         // neu khong moi chinh sua localPosition se bi reset ve 0.
     }
 
+    private void Update()
+    {
+        // Cho phep nguoi choi nhan phim G de vut ban/pha huy do vat dang cam
+        if (UnityEngine.InputSystem.Keyboard.current != null && 
+            UnityEngine.InputSystem.Keyboard.current.gKey.wasPressedThisFrame)
+        {
+            if (!IsEmpty)
+            {
+                Drop(destroy: true);
+            }
+        }
+    }
+
     /// <summary>Cam vat len. Gan vao holdPoint, tat collider de tranh ray lan.</summary>
     public void PickUp(IngredientPickup item)
     {
