@@ -47,8 +47,11 @@ public class CustomerNPC : MonoBehaviour
     [Tooltip("Khoảng cách phát hiện ghế ăn (m)")]
     [SerializeField] private float seatDetectionRadius = 15f;
 
-    [Header("=== Debug Spawner ===")]
+    [Header("=== Debug & Visuals ===")]
     [SerializeField] private bool showGizmos = true;
+    
+    [Tooltip("Danh sách các Prefab NPC 3D. Nếu trống, script sẽ tự sinh ra hình Capsule.")]
+    [SerializeField] private GameObject[] npcPrefabs;
 
     private int currentSpawnCount = 0;
 
@@ -96,6 +99,7 @@ public class CustomerNPC : MonoBehaviour
     private CustomerNPC spawnerRef;
     private float patienceRemaining;
     private bool passedHalf;
+    private Animator anim;
 
     // Walker state
     private Vector3 walkerDestination;
@@ -112,6 +116,9 @@ public class CustomerNPC : MonoBehaviour
         // Luôn lấy agent (dù role chưa được gán đúng lúc Awake chạy)
         agent = GetComponent<NavMeshAgent>();
         if (orderBubble) orderBubble.SetActive(false);
+
+        // Lấy Animator từ con hoặc chính nó để điều khiển Animation (Đi bộ / Ngồi)
+        anim = GetComponentInChildren<Animator>();
     }
 
     /// <summary>Khởi tạo visual + UI cho NPC (gọi khi bắt đầu routine)</summary>
@@ -153,6 +160,20 @@ public class CustomerNPC : MonoBehaviour
     {
         if (role == Role.Spawner) return;
 
+        // Điều khiển Animation
+        if (anim != null)
+        {
+            // Trạng thái Ngồi
+            bool isSitting = (currentState >= State.Seated && currentState <= State.Eating);
+            anim.SetBool("IsSeated", isSitting);
+
+            // Tốc độ di chuyển (Đi bộ)
+            if (agent != null && agent.enabled)
+            {
+                anim.SetFloat("Speed", agent.velocity.magnitude);
+            }
+        }
+
         // Thanh chờ quay về phía camera
         if (patienceBarObject != null && patienceBarObject.activeSelf)
         {
@@ -188,18 +209,36 @@ public class CustomerNPC : MonoBehaviour
         if (!NavMesh.SamplePosition(spawnPos, out hit, 5f, NavMesh.AllAreas))
             return;
 
-        GameObject npcGO = new GameObject("Pedestrian (Auto)");
-        npcGO.transform.position = hit.position;
+        GameObject npcGO;
 
-        NavMeshAgent npcAgent = npcGO.AddComponent<NavMeshAgent>();
+        // Nếu có Prefab 3D từ người chơi thì sẽ sinh ra Prefab đó, ngược lại sinh Game Object trống (Capsule)
+        if (npcPrefabs != null && npcPrefabs.Length > 0)
+        {
+            GameObject prefabToSpawn = npcPrefabs[Random.Range(0, npcPrefabs.Length)];
+            npcGO = Instantiate(prefabToSpawn, hit.position, Quaternion.identity);
+            npcGO.name = "Customer NPC (3D)";
+        }
+        else
+        {
+            npcGO = new GameObject("Pedestrian (Auto)");
+            npcGO.transform.position = hit.position;
+        }
+
+        // --- Cài đặt NavMesh Agent ---
+        NavMeshAgent npcAgent = npcGO.GetComponent<NavMeshAgent>();
+        if (npcAgent == null) npcAgent = npcGO.AddComponent<NavMeshAgent>();
+        
         npcAgent.speed = Random.Range(2f, 4f);
         npcAgent.angularSpeed = 120f;
         npcAgent.stoppingDistance = 0.5f;
         npcAgent.radius = 0.3f;
         npcAgent.height = 2f;
 
-        // Thêm CustomerNPC ở chế độ Walker
-        CustomerNPC npc = npcGO.AddComponent<CustomerNPC>();
+        // --- Cài đặt Script CustomerNPC ---
+        CustomerNPC npc = npcGO.GetComponent<CustomerNPC>();
+        if (npc == null) npc = npcGO.AddComponent<CustomerNPC>();
+
+        // Truyền các thông số vào để nó chạy
         npc.role = Role.Walker;
         npc.spawnerRef = this;
         npc.walkerDestination = spawnPos + transform.forward * walkDistance

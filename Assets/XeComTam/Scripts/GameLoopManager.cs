@@ -51,7 +51,19 @@ public class GameLoopManager : MonoBehaviour
         if (dayNightCycle != null)
             dayNightCycle.OnDayEnd += HandleDayEnd;
 
-        // Bắt đầu ngày 1: random event + hiện thông báo
+        // KIỂM TRA TUTORIAL
+        // Nếu có UI Hướng dẫn đang bật trên Scene thì đợi TutorialUI gọi, KO StartNewDay!
+        var tutorial = FindObjectOfType<TutorialUI>();
+        if (tutorial == null || !tutorial.gameObject.activeInHierarchy)
+        {
+            // Nếu không xài Tutorial thì game tự chạy luôn
+            StartFirstDay();
+        }
+    }
+
+    /// <summary>Bắt đầu ngày 1 (Được gọi bởi TutorialUI lúc bấm phím T)</summary>
+    public void StartFirstDay()
+    {
         StartNewDay();
     }
 
