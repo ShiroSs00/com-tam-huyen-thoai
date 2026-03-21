@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.UI;
@@ -60,11 +61,15 @@ public class CustomerNPC : MonoBehaviour
     // ═══════════════════════════════════════════════════════════════════════════
 
     public enum State { Idle, Walking, WalkToSeat, Seated, ShowOrder, WaitFood, Eating, Paying, Leave }
+    public enum OrderType { ComSuon, ComSuonTrung }
 
     [Header("=== NPC State (debug) ===")]
     [SerializeField] private State currentState = State.Idle;
+    [SerializeField] private OrderType currentOrder;
 
     [Header("=== Tham số NPC ===")]
+    [Tooltip("Tỉ lệ gọi món Cơm Sườn Không Trứng (VD: 50%)")]
+    [SerializeField] private float chanceToOrderBasic = 50f;
     [SerializeField] private float eatTime = 8f;
     [SerializeField] private float payDelay = 0.5f;
     [SerializeField] private float leaveDelay = 1.5f;
@@ -79,8 +84,12 @@ public class CustomerNPC : MonoBehaviour
     [Header("=== Model ===")]
     [SerializeField] private Transform modelRoot;
 
-    [Header("=== Order Bubble ===")]
+    [Header("=== Order Bubble UI ===")]
+    [Tooltip("Gắn nguyên cái Canvas/Panel tổng vào đây để bật/tắt")]
     [SerializeField] private GameObject orderBubble;
+    
+    [Tooltip("0: Ráp hình Cơm Sườn | 1: Ráp hình Cơm Sườn Trứng")]
+    [SerializeField] private GameObject[] orderVisuals;
 
     [Header("=== Patience Bar UI ===")]
     [Tooltip("Prefab UI thanh chờ")]
@@ -250,7 +259,8 @@ public class CustomerNPC : MonoBehaviour
         npc.maxPatienceTime = maxPatienceTime;
         npc.latePenaltyPercent = latePenaltyPercent;
         npc.eatTime = eatTime;
-        npc.patienceBarPrefab = patienceBarPrefab;
+        // Copy order setting
+        npc.chanceToOrderBasic = chanceToOrderBasic;
 
         currentSpawnCount++;
     }
@@ -403,10 +413,29 @@ public class CustomerNPC : MonoBehaviour
         yield return new WaitForSeconds(0.5f);
         if (this == null) yield break;
 
+        // Xoay mặt (Tùy chọn)
+        /*
+        if (assignedSeat.SitPoint != null)
+        {
+            Vector3 lookPos = assignedSeat.SitPoint.position + assignedSeat.SitPoint.forward;
+            transform.LookAt(new Vector3(lookPos.x, transform.position.y, lookPos.z));
+        }
+        */
+
         // --- Gọi món ---
+        currentOrder = (Random.Range(0f, 100f) < chanceToOrderBasic) ? OrderType.ComSuon : OrderType.ComSuonTrung;
         SetState(State.ShowOrder);
+        
         if (orderBubble) orderBubble.SetActive(true);
-        Debug.Log("[NPC] Gọi: 1 đĩa cơm tấm.");
+
+        // Hiển thị hình ảnh Order tương ứng
+        if (orderVisuals != null && orderVisuals.Length >= 2)
+        {
+            if (orderVisuals[0] != null) orderVisuals[0].SetActive(currentOrder == OrderType.ComSuon);
+            if (orderVisuals[1] != null) orderVisuals[1].SetActive(currentOrder == OrderType.ComSuonTrung);
+        }
+                
+        Debug.Log($"[NPC] Khách vừa gọi món: {currentOrder}");
 
         // --- Chờ đồ ăn (với thanh kiên nhẫn) ---
         SetState(State.WaitFood);
@@ -459,14 +488,33 @@ public class CustomerNPC : MonoBehaviour
         // --- Trả tiền ---
         SetState(State.Paying);
 
-        // Tính toán giá trị đĩa ăn trước khi dọn
+        // Tính toán giá trị đĩa ăn và check đúng món không
         int fullPrice = EconomyManager.Instance != null ? EconomyManager.Instance.PricePerPlate : 35000;
+        bool isCorrectOrder = true;
+
         if (assignedSeat != null && assignedSeat.LinkedTable != null)
         {
             PlateItem plate = assignedSeat.LinkedTable.GetComponentInChildren<PlateItem>();
             if (plate != null)
             {
+                // Gọi hàm của đĩa để tính tiền (VD Cơm trứng thì 35k, ko trứng 30k)
                 fullPrice = plate.CalculatePlateValue(fullPrice);
+
+                bool hasEgg = plate.Ingredients.Contains(IngredientType.TrungChien);
+                if (currentOrder == OrderType.ComSuonTrung && !hasEgg)
+                {
+                    // Đòi trứng mà không cho trứng -> Khách bùng 50% tiền!
+                    isCorrectOrder = false;
+                    fullPrice = fullPrice / 2;
+                    Debug.LogWarning("[NPC] Dám bưng thiếu Trứng à? Trừ nửa tiền!");
+                }
+                else if (currentOrder == OrderType.ComSuon && hasEgg)
+                {
+                    // Lỡ tay bỏ thêm trứng -> Khách ăn lợi nhưng chỉ trả tiền suất Cơm sườn thôi
+                    isCorrectOrder = false;
+                    fullPrice -= 5000; // Trừ lại 5k tiền trứng
+                    Debug.LogWarning("[NPC] Ko gọi trứng tự nhiên bỏ vô? Khách không thèm trả tiền trứng!");
+                }
             }
         }
 
