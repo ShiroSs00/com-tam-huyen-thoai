@@ -65,6 +65,7 @@
     <Compile Include="Assets\XeComTam\Scripts\MoneyUI.cs" />
     <Compile Include="Assets\XeComTam\Scripts\EconomyManager.cs" />
     <Compile Include="Assets\XeComTam\Scripts\IngredientSource.cs" />
+    <Compile Include="Assets\XeComTam\Scripts\SettingsMenu.cs" />
     <Compile Include="Assets\XeComTam\Scripts\InteractableObject.cs" />
     <Compile Include="Assets\XeComTam\Scripts\PlayerInventory.cs" />
     <Compile Include="Assets\XeComTam\Scripts\CustomerSeat.cs" />
@@ -76,6 +77,7 @@
     <Compile Include="Assets\XeComTam\Scripts\CookingStation.cs" />
     <Compile Include="Assets\XeComTam\Scripts\CustomerNPC.cs" />
     <Compile Include="Assets\XeComTam\Scripts\PlayerInteraction.cs" />
+    <Compile Include="Assets\XeComTam\Scripts\IntroCutsceneManager.cs" />
     <Compile Include="Assets\XeComTam\Scripts\MainMenu.cs" />
     <Compile Include="Assets\XeComTam\Scripts\IngredientType.cs" />
     <Compile Include="Assets\XeComTam\Scripts\FPSLayerController.cs" />
@@ -1238,16 +1240,16 @@
       <HintPath>Library\ScriptAssemblies\Unity.TestTools.CodeCoverage.Editor.OpenCover.Model.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="Unity.TestTools.CodeCoverage.Editor">
-      <HintPath>Library\ScriptAssemblies\Unity.TestTools.CodeCoverage.Editor.dll</HintPath>
+    <Reference Include="Unity.AI.Navigation.Updater">
+      <HintPath>Library\ScriptAssemblies\Unity.AI.Navigation.Updater.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Unity.Burst">
       <HintPath>Library\ScriptAssemblies\Unity.Burst.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="Unity.AI.Navigation.Updater">
-      <HintPath>Library\ScriptAssemblies\Unity.AI.Navigation.Updater.dll</HintPath>
+    <Reference Include="Unity.AI.Navigation.Editor">
+      <HintPath>Library\ScriptAssemblies\Unity.AI.Navigation.Editor.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Unity.Timeline">
@@ -1266,12 +1268,12 @@
       <HintPath>Library\ScriptAssemblies\Unity.InternalAPIEngineBridge.004.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="Unity.Multiplayer.Center.Editor">
-      <HintPath>Library\ScriptAssemblies\Unity.Multiplayer.Center.Editor.dll</HintPath>
+    <Reference Include="Unity.TestTools.CodeCoverage.Editor">
+      <HintPath>Library\ScriptAssemblies\Unity.TestTools.CodeCoverage.Editor.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="Unity.AI.Navigation.Editor">
-      <HintPath>Library\ScriptAssemblies\Unity.AI.Navigation.Editor.dll</HintPath>
+    <Reference Include="Unity.Multiplayer.Center.Editor">
+      <HintPath>Library\ScriptAssemblies\Unity.Multiplayer.Center.Editor.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Unity.VisualScripting.Shared.Editor">
