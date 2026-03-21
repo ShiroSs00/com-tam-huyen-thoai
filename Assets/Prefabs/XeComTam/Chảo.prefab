@@ -116,9 +116,6 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: a473c2120f2e0864681df3f5693be6ae, type: 3}
       insertIndex: -1
       addedObject: {fileID: 4117993023028688526}
-    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: a473c2120f2e0864681df3f5693be6ae, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 3779355479976984875}
   m_SourcePrefab: {fileID: 100100000, guid: a473c2120f2e0864681df3f5693be6ae, type: 3}
 --- !u!1 &539088249854030248 stripped
 GameObject:
@@ -140,6 +137,11 @@ MonoBehaviour:
   stationName: Tram nau
   acceptedInput: 4
   outputPrefab: {fileID: 2650437508295185760, guid: 955db0c204756c6429b1d9e7f0edb0f1, type: 3}
+  cookingVisualPrefab: {fileID: 7357609785525090175, guid: 065ea4ff1cb3fe640a904fb3f2aec166, type: 3}
+  rawOffsetPosition: {x: 0, y: 0, z: 0}
+  rawOffsetRotation: {x: 0, y: 0, z: 0}
+  cookedOffsetPosition: {x: 0.0215, y: -0.0861, z: 0.08265}
+  cookedOffsetRotation: {x: -65.73, y: 0, z: 0}
   outputType: 5
   cookTime: 5
   cookingSlot: {fileID: 3851172842749157997}
@@ -167,23 +169,6 @@ MeshCollider:
   m_Convex: 1
   m_CookingOptions: 30
   m_Mesh: {fileID: -3362887337151679087, guid: a473c2120f2e0864681df3f5693be6ae, type: 3}
---- !u!114 &3779355479976984875
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 539088249854030248}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8d7448dc98290284da9437d999a05870, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::InteractableObject
-  interactName: "Ch\u1EA3o"
-  interactHint: "Nh\u1EA5n [E] \u0111\u1EC3 xem"
-  onInteract:
-    m_PersistentCalls:
-      m_Calls: []
 --- !u!4 &878458408449256210 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: a473c2120f2e0864681df3f5693be6ae, type: 3}

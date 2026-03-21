@@ -127,4 +127,5 @@ MonoBehaviour:
   ingredientPrefab: {fileID: 3479128280483608941, guid: e371d69e65f69f94b916f0f87c2b96bd, type: 3}
   ingredientType: 2
   requiresCooking: 1
+  handScale: 0.3
   cooldown: 0.5

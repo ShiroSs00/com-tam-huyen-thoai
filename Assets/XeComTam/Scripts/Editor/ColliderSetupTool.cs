@@ -95,12 +95,32 @@ public static class ColliderSetupTool
 
             if (isInteractable)
             {
-                // Đánh tag Interactable
+                // Đánh tag và Layer Interactable
                 EnsureTag("Interactable");
-                go.tag = "Interactable";
+                EnsureLayer("Interactable");
+                int interactableLayer = LayerMask.NameToLayer("Interactable");
 
-                // Thêm InteractableObject nếu chưa có
-                if (go.GetComponent<InteractableObject>() == null)
+                go.tag = "Interactable";
+                go.layer = interactableLayer;
+
+                // Gán Layer cho tất cả các con có Collider để Raycast hoạt động
+                foreach (var col in go.GetComponentsInChildren<Collider>(true))
+                {
+                    col.gameObject.layer = interactableLayer;
+                }
+
+                // Thêm InteractableObject nếu chưa có thành phần nào implements IInteractable (như ServingTable, v.v)
+                bool hasOtherInteractable = false;
+                foreach (var i in go.GetComponents<IInteractable>())
+                {
+                    if (!(i is InteractableObject))
+                    {
+                        hasOtherInteractable = true;
+                        break;
+                    }
+                }
+
+                if (!hasOtherInteractable && go.GetComponent<InteractableObject>() == null)
                 {
                     var io = go.AddComponent<InteractableObject>();
                     // Gán tên dựa theo tên file
@@ -111,6 +131,33 @@ public static class ColliderSetupTool
                 }
             }
         }, "XeComTam");
+    }
+
+    [MenuItem("Tools/Cơm Tấm/9. Cleanup Duplicate InteractableObjects")]
+    public static void CleanupInteractables()
+    {
+        ProcessFolders(new string[] { BASE }, (go) =>
+        {
+            // Nếu prefab có IInteractable khác (như ServingTable) VÀ bị gắn nhầm InteractableObject
+            bool hasOther = false;
+            foreach (var i in go.GetComponents<IInteractable>())
+            {
+                if (!(i is InteractableObject))
+                {
+                    hasOther = true;
+                    break;
+                }
+            }
+            if (hasOther)
+            {
+                var io = go.GetComponent<InteractableObject>();
+                if (io != null)
+                {
+                    Object.DestroyImmediate(io, true);
+                    Debug.Log($"[Cleanup] Đã xóa InteractableObject thừa khỏi: {go.name}");
+                }
+            }
+        }, "Làm sạch InteractableObject thừa toàn bộ dự án");
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────
@@ -213,6 +260,31 @@ public static class ColliderSetupTool
         tagsProp.GetArrayElementAtIndex(tagsProp.arraySize - 1).stringValue = tag;
         tagManager.ApplyModifiedProperties();
         Debug.Log($"[ColliderSetup] Đã tạo tag '{tag}'.");
+    }
+
+    private static void EnsureLayer(string layer)
+    {
+        SerializedObject tagManager = new SerializedObject(
+            AssetDatabase.LoadAllAssetsAtPath("ProjectSettings/TagManager.asset")[0]);
+
+        SerializedProperty layersProp = tagManager.FindProperty("layers");
+        for (int i = 8; i < layersProp.arraySize; i++)
+        {
+            SerializedProperty sp = layersProp.GetArrayElementAtIndex(i);
+            if (sp.stringValue == layer) return;
+        }
+
+        for (int i = 8; i < layersProp.arraySize; i++)
+        {
+            SerializedProperty sp = layersProp.GetArrayElementAtIndex(i);
+            if (string.IsNullOrEmpty(sp.stringValue))
+            {
+                sp.stringValue = layer;
+                tagManager.ApplyModifiedProperties();
+                Debug.Log($"[ColliderSetup] Đã tạo layer '{layer}' tại index {i}.");
+                return;
+            }
+        }
     }
 
     private static string PrettifyName(string name)

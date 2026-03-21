@@ -30,7 +30,7 @@ public class PlayerInteraction : MonoBehaviour
     {
         DetectTarget();
 
-        if (wantInteract && currentTarget != null)
+        if (wantInteract && IsValid(currentTarget))
         {
             currentTarget.Interact();
             wantInteract = false;
@@ -43,12 +43,16 @@ public class PlayerInteraction : MonoBehaviour
         {
             wantInteract = true;
             if (showDebugLog)
-                Debug.Log($"[PlayerInteraction] E pressed. Target = {(currentTarget != null ? currentTarget.InteractName : "null")}");
+                Debug.Log($"[PlayerInteraction] E pressed. Target = {(IsValid(currentTarget) ? currentTarget.InteractName : "null")}");
         }
     }
 
     private void DetectTarget()
     {
+        // Xoa stale reference neu object da bi destroy (interface check khong qua Unity null override)
+        if (!IsValid(currentTarget))
+            currentTarget = null;
+
         Transform origin = cameraTransform != null ? cameraTransform : Camera.main?.transform;
         if (origin == null) return;
 
@@ -66,16 +70,30 @@ public class PlayerInteraction : MonoBehaviour
             if (showDebugLog)
                 Debug.Log($"[Raycast] Hit: {hit.collider.gameObject.name} | Layer: {LayerMask.LayerToName(hit.collider.gameObject.layer)}");
 
-            IInteractable interactable = hit.collider.GetComponentInParent<IInteractable>();
-            if (interactable != null)
+            // QUAN TRONG 2: Phai set includeInactive = true. Neu false, Unity se kiem tra .enabled
+            // de loc object. Kiem tra .enabled tren object da bi destroy se gay ra MissingReferenceException
+            // tu ben duoi C++ engine cua Unity!
+            IInteractable[] interactables = hit.collider.GetComponentsInParent<IInteractable>(true);
+            
+            foreach (var interactable in interactables)
             {
-                currentTarget = interactable;
-                interactionUI?.Show(interactable.InteractName, interactable.InteractHint);
-                return;
+                // QUAN TRONG: Phai cast sang Component de Unity null override hoat dong dung
+                // Interface != null se TRUE ngay ca khi Unity script instance da bi destroy!
+                if (IsValid(interactable))
+                {
+                    // Bo qua nhung object bi tat (activeSelf == false hoac enabled == false)
+                    var comp = interactable as Behaviour;
+                    if (comp != null && !comp.isActiveAndEnabled) continue;
+
+                    currentTarget = interactable;
+                    interactionUI?.Show(interactable.InteractName, interactable.InteractHint);
+                    return;
+                }
             }
-            else if (showDebugLog)
+
+            if (showDebugLog)
             {
-                Debug.Log($"[Raycast] Hit '{hit.collider.gameObject.name}' nhung KHONG co IInteractable! Check script.");
+                Debug.Log($"[Raycast] Hit '{hit.collider.gameObject.name}' nhung KHONG co IInteractable hop le! Check script.");
             }
         }
 
@@ -83,12 +101,29 @@ public class PlayerInteraction : MonoBehaviour
         interactionUI?.Hide();
     }
 
+    /// <summary>
+    /// Kiem tra an toan cho IInteractable: phai qua Unity null check (khong dung interface != null).
+    /// Interface ne null check KHONG di qua Unity operator override → MissingReferenceException.
+    /// </summary>
+    private static bool IsValid(IInteractable target)
+    {
+        if (target == null) return false; // C# reference is null
+        
+        // Nếu object là MonoBehaviour/Component, phải dùng Unity null check để biết nó bị destroy chưa
+        if (target is UnityEngine.Object unityObj)
+        {
+            return unityObj != null; // unityObj != null trả về FALSE nếu script đã bị destroy
+        }
+        
+        return true; // Là pure C# class (không phải Unity object)
+    }
+
     private void OnDrawGizmosSelected()
     {
         Transform origin = cameraTransform != null ? cameraTransform : Camera.main?.transform;
         if (origin == null) return;
 
-        Gizmos.color = currentTarget != null ? Color.green : Color.yellow;
+        Gizmos.color = IsValid(currentTarget) ? Color.green : Color.yellow;
         Gizmos.DrawRay(origin.position, origin.forward * interactDistance);
     }
 }

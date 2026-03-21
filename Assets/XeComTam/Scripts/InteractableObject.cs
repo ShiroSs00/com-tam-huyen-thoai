@@ -15,11 +15,12 @@ public class InteractableObject : MonoBehaviour, IInteractable
     public UnityEvent onInteract;
 
     // ── IInteractable ────────────────────────────────────────────────────────
-    public string InteractName => interactName;
-    public string InteractHint => interactHint;
+    public string InteractName => this == null ? "" : interactName;
+    public string InteractHint => this == null ? "" : interactHint;
 
     public void Interact()
     {
+        if (this == null) return;
         Debug.Log($"[Interact] {interactName}");
         onInteract?.Invoke();
     }
@@ -30,8 +31,9 @@ public class InteractableObject : MonoBehaviour, IInteractable
         int layer = LayerMask.NameToLayer("Interactable");
         if (layer >= 0)
         {
-            // Set layer cho root VÀ tất cả children (vì FBX mesh thường nằm ở child)
-            SetLayerRecursive(gameObject, layer);
+            // CHI set layer cho chinh GameObject nay va nhung child KHONG co IInteractable khac.
+            // Tranh ghi de layer cua PlateSlot, GheNPC hoac cac object con co script rieng.
+            SetLayerSafe(gameObject, layer);
         }
         else
         {
@@ -40,10 +42,22 @@ public class InteractableObject : MonoBehaviour, IInteractable
         }
     }
 
-    private static void SetLayerRecursive(GameObject go, int layer)
+    /// <summary>
+    /// Set layer cho go va children, nhung KHONG ghi de neu child da co IInteractable rieng.
+    /// Dieu nay tranh Raycast bi boi roi khi nhieu IInteractable chong lan nhau.
+    /// </summary>
+    private static void SetLayerSafe(GameObject go, int layer)
     {
         go.layer = layer;
         foreach (Transform child in go.transform)
-            SetLayerRecursive(child.gameObject, layer);
+        {
+            // Neu child da co IInteractable rieng thi de no tu quan ly layer cua no
+            bool childHasOwnInteractable = child.GetComponent<IInteractable>() != null
+                                           && child.GetComponent<InteractableObject>() == null; 
+            // InteractableObject chinh no implement IInteractable nen phai loai tru no ra
+            // De don gian: chi check xem co COMPONENT khac implement IInteractable khong
+            if (!childHasOwnInteractable)
+                SetLayerSafe(child.gameObject, layer);
+        }
     }
 }

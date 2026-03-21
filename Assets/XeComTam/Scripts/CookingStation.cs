@@ -16,14 +16,26 @@ public class CookingStation : MonoBehaviour, IInteractable
     [Tooltip("Loai nguyen lieu chap nhan dau vao")]
     [SerializeField] private IngredientType acceptedInput;
 
-    [Tooltip("San pham sau khi nau xong")]
+    [Tooltip("San pham sinh ra (vd: ThitChin)")]
     [SerializeField] private GameObject outputPrefab;
 
+    [Tooltip("Model hien thi DANG NAU (vd: Trung dap vao chao). De trong neu dung chinh model nguyen lieu dau vao.")]
+    [SerializeField] private GameObject cookingVisualPrefab;
+
+    [Header("Visual Ajustments")]
+    [Tooltip("Doi vi tri nguyen lieu SONG tren bep")]
+    public Vector3 rawOffsetPosition = Vector3.zero;
+    [Tooltip("Xoay nguyen lieu SONG tren bep")]
+    public Vector3 rawOffsetRotation = Vector3.zero;
+
+    [Tooltip("Doi vi tri nguyen lieu CHIN tren bep")]
+    public Vector3 cookedOffsetPosition = Vector3.zero;
+    [Tooltip("Xoay nguyen lieu CHIN tren bep")]
+    public Vector3 cookedOffsetRotation = Vector3.zero;
+
+    [Header("Nau An")]
     [Tooltip("Loai nguyen lieu dau ra")]
     [SerializeField] private IngredientType outputType;
-
-    [Tooltip("Scale san pham khi lay ra tay hoac dat len dia")]
-    [SerializeField] private float handScale = 0.3f;
 
     [Tooltip("Thoi gian nau (giay)")]
     [SerializeField] private float cookTime = 5f;
@@ -35,6 +47,10 @@ public class CookingStation : MonoBehaviour, IInteractable
     [Header("Progress Bar UI (World Space Canvas)")]
     [SerializeField] private Slider progressSlider;
     [SerializeField] private GameObject progressBarRoot;
+
+    [Header("Audio")]
+    [SerializeField] private AudioClip cookingSound;
+    private AudioSource audioSource;
 
     // State
     private bool isCooking;
@@ -77,8 +93,6 @@ public class CookingStation : MonoBehaviour, IInteractable
                 PlateItem plate = inv.HeldItem.GetComponent<PlateItem>();
                 if (plate != null && plate.TryAddIngredient(outputType))
                 {
-                    // Spawn visual tren dia
-                    SpawnVisualOnPlate(inv.HeldItem.transform);
                     ClearOutput();
                     Debug.Log($"[CookingStation] Them {outputType} vao dia.");
                 }
@@ -90,8 +104,8 @@ public class CookingStation : MonoBehaviour, IInteractable
             {
                 Vector3 spawnPos = cookingSlot != null ? cookingSlot.position
                                   : transform.position + Vector3.up * 0.5f;
-                GameObject output = Instantiate(outputPrefab, spawnPos, Quaternion.identity);
-                output.transform.localScale = Vector3.one * handScale; // Fix scale
+                GameObject output = Instantiate(outputPrefab, spawnPos, outputPrefab.transform.rotation);
+                TransformUtils.ForceEnableRenderers(output); // Fix mat mesh fbx
 
                 IngredientPickup pickup = output.GetComponent<IngredientPickup>();
                 if (pickup == null) pickup = output.AddComponent<IngredientPickup>();
@@ -99,7 +113,7 @@ public class CookingStation : MonoBehaviour, IInteractable
 
                 inv.PickUp(pickup);
                 ClearOutput();
-                Debug.Log($"[CookingStation] Da lay: {outputType} (scale={handScale})");
+                Debug.Log($"[CookingStation] Da lay: {outputType}");
             }
             else
             {
@@ -125,16 +139,45 @@ public class CookingStation : MonoBehaviour, IInteractable
             }
 
             // Lay nguyen lieu khoi tay va dat len station
-            inv.Drop(destroy: false);
-
-            if (cookingSlot != null)
+            if (cookingVisualPrefab != null)
             {
-                held.transform.SetParent(cookingSlot);
-                held.transform.localPosition = Vector3.zero;
-                held.transform.localRotation = Quaternion.identity;
-                held.transform.localScale    = Vector3.one * handScale; // Hien thi tren lo
+                inv.Drop(destroy: true); // Xoa bo nguyen lieu goc
+                
+                Vector3 startPos = cookingSlot != null ? cookingSlot.position : transform.position;
+                GameObject cookingVisual = Instantiate(cookingVisualPrefab, startPos, Quaternion.Euler(rawOffsetRotation));
+                
+                if (cookingSlot != null)
+                {
+                    TransformUtils.SetParentKeepWorldScale(cookingVisual.transform, cookingSlot);
+                    Vector3 parentS = cookingSlot.lossyScale;
+                    cookingVisual.transform.localPosition = new Vector3(
+                        parentS.x != 0 ? rawOffsetPosition.x / parentS.x : rawOffsetPosition.x,
+                        parentS.y != 0 ? rawOffsetPosition.y / parentS.y : rawOffsetPosition.y,
+                        parentS.z != 0 ? rawOffsetPosition.z / parentS.z : rawOffsetPosition.z
+                    );
+                    cookingVisual.transform.localRotation = Quaternion.Euler(rawOffsetRotation);
+                }
+                currentIngredientVisual = cookingVisual;
             }
-            currentIngredientVisual = held.gameObject;
+            else
+            {
+                inv.Drop(destroy: false); // Giu nguyen nguyen lieu goc
+                
+                if (cookingSlot != null)
+                {
+                    TransformUtils.SetParentKeepWorldScale(held.transform, cookingSlot);
+                    // Trick de khi User dien 0.12 (m) ra Inspector, game se hieu do la do cao the gioi 
+                    // vi Lò Nuong dang co do Scale khong lo (VD: 100) ma User khong hay biet.
+                    Vector3 parentS = cookingSlot.lossyScale;
+                    held.transform.localPosition = new Vector3(
+                        parentS.x != 0 ? rawOffsetPosition.x / parentS.x : rawOffsetPosition.x,
+                        parentS.y != 0 ? rawOffsetPosition.y / parentS.y : rawOffsetPosition.y,
+                        parentS.z != 0 ? rawOffsetPosition.z / parentS.z : rawOffsetPosition.z
+                    );
+                    held.transform.localRotation = Quaternion.Euler(rawOffsetRotation);
+                }
+                currentIngredientVisual = held.gameObject;
+            }
 
             StartCoroutine(CookRoutine());
         }
@@ -145,6 +188,13 @@ public class CookingStation : MonoBehaviour, IInteractable
         isCooking = true;
         if (progressBarRoot) progressBarRoot.SetActive(true);
         if (progressSlider)  progressSlider.value = 0f;
+
+        if (cookingSound != null && audioSource != null)
+        {
+            audioSource.clip = cookingSound;
+            audioSource.loop = true;
+            audioSource.Play();
+        }
 
         float elapsed = 0f;
         while (elapsed < cookTime)
@@ -157,9 +207,52 @@ public class CookingStation : MonoBehaviour, IInteractable
         // Xoa visual nguyen lieu song
         if (currentIngredientVisual) Destroy(currentIngredientVisual);
         currentIngredientVisual = null;
+
+        // Sinh ra visual cua nguyen lieu chin tren bep luon de user thay doi tu song -> chin
+        if (outputPrefab != null)
+        {
+            Vector3 visualPos = cookingSlot != null ? cookingSlot.position : transform.position + Vector3.up * 0.5f;
+            currentIngredientVisual = Instantiate(outputPrefab, visualPos, Quaternion.Euler(cookedOffsetRotation));
+            
+            if (cookingSlot != null)
+            {
+                TransformUtils.SetParentKeepWorldScale(currentIngredientVisual.transform, cookingSlot);
+                
+                // Same trick: bu dap Parent Lossy Scale khong lo de thit ko bay len troi met
+                Vector3 parentS = cookingSlot.lossyScale;
+                currentIngredientVisual.transform.localPosition = new Vector3(
+                    parentS.x != 0 ? cookedOffsetPosition.x / parentS.x : cookedOffsetPosition.x,
+                    parentS.y != 0 ? cookedOffsetPosition.y / parentS.y : cookedOffsetPosition.y,
+                    parentS.z != 0 ? cookedOffsetPosition.z / parentS.z : cookedOffsetPosition.z
+                );
+                currentIngredientVisual.transform.localRotation = Quaternion.Euler(cookedOffsetRotation);
+            }
+            TransformUtils.ForceEnableRenderers(currentIngredientVisual);
+
+            // TAT TUONG TAC: De tranh bi loi tia raycast hoac tu dong roi Physics do collider 
+            foreach (var col in currentIngredientVisual.GetComponentsInChildren<Collider>())
+                col.enabled = false;
+            var pickupScript = currentIngredientVisual.GetComponent<IngredientPickup>();
+            if (pickupScript) pickupScript.enabled = false;
+
+            Debug.Log($"[CookingStation] Da hien thi nguyen lieu chin tren bep: {outputPrefab.name}\n" +
+                      $" - Toa do The Gioi (WorldPos): {currentIngredientVisual.transform.position}\n" +
+                      $" - Toa do Bep (LocalPos): {currentIngredientVisual.transform.localPosition}\n" +
+                      $" - The tich The Gioi (LossyScale): {currentIngredientVisual.transform.lossyScale}\n" +
+                      $" - The tich rieng (LocalScale): {currentIngredientVisual.transform.localScale}");
+        }
+        else 
+        {
+            Debug.LogError($"[LOI NANG] Bep {stationName} CHUA DUOC GAN PREFAB THIT CHIN (Output Prefab) o Inspector! No se khong the hien hinh.");
+        }
+
         isCooking  = false;
         hasOutput  = true;
         if (progressSlider)  progressSlider.value = 1f;
+        
+        if (audioSource != null && audioSource.isPlaying)
+            audioSource.Stop();
+            
         Debug.Log($"[CookingStation] {stationName}: NAU XONG! Nhan E de lay {outputType}.");
     }
 
@@ -167,30 +260,21 @@ public class CookingStation : MonoBehaviour, IInteractable
     {
         hasOutput = false;
         if (progressBarRoot) progressBarRoot.SetActive(false);
-    }
-
-    /// <summary>Spawn visual nguyen lieu chinh len mat dia.</summary>
-    private void SpawnVisualOnPlate(Transform plateTransform)
-    {
-        if (outputPrefab == null) return;
-        int idx = plateTransform.childCount;
-        GameObject visual = Instantiate(outputPrefab, plateTransform);
-        float angle = idx * 60f;
-        float r = 0.25f;
-        visual.transform.localPosition = new Vector3(
-            Mathf.Cos(angle * Mathf.Deg2Rad) * r, 0.05f,
-            Mathf.Sin(angle * Mathf.Deg2Rad) * r);
-        visual.transform.localRotation = Quaternion.identity;
-        visual.transform.localScale    = Vector3.one * handScale;
-
-        foreach (var col in visual.GetComponentsInChildren<Collider>())
-            col.enabled = false;
-        var p = visual.GetComponent<IngredientPickup>();
-        if (p) p.enabled = false;
+        if (currentIngredientVisual) Destroy(currentIngredientVisual);
+        currentIngredientVisual = null;
+        
+        if (audioSource != null && audioSource.isPlaying)
+            audioSource.Stop();
     }
 
     private void Awake()
     {
         if (progressBarRoot) progressBarRoot.SetActive(false);
+        
+        audioSource = gameObject.AddComponent<AudioSource>();
+        audioSource.playOnAwake = false;
+        audioSource.spatialBlend = 1f; // 3D sound so it originates from the grill
+        audioSource.minDistance = 2f;
+        audioSource.maxDistance = 10f;
     }
 }
