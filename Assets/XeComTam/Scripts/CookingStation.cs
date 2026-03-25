@@ -43,6 +43,9 @@ public class CookingStation : MonoBehaviour, IInteractable
     [Header("Hien thi trong the gioi")]
     [Tooltip("Vi tri hien thi nguyen lieu dang nau")]
     [SerializeField] private Transform cookingSlot;
+    
+    [Tooltip("Khói bốc lên bàng Particle System sếp vừa tạo (Kéo thả vào đây)")]
+    [SerializeField] private ParticleSystem smokeVFX;
 
     [Header("Progress Bar UI (World Space Canvas)")]
     [SerializeField] private Slider progressSlider;
@@ -196,6 +199,17 @@ public class CookingStation : MonoBehaviour, IInteractable
             audioSource.Play();
         }
 
+        // Bật khói nướng
+        if (smokeVFX != null)
+        {
+            smokeVFX.Play();
+            Debug.Log($"[CookingStation] DA BAT KHOI! Particle dang emit: {smokeVFX.isEmitting}, particleCount: {smokeVFX.particleCount}");
+        }
+        else
+        {
+            Debug.LogWarning("[CookingStation] smokeVFX la NULL! Sep chua keo tha cuc Khoi vao o Smoke VFX trong Inspector!");
+        }
+
         float elapsed = 0f;
         while (elapsed < cookTime)
         {
@@ -248,6 +262,10 @@ public class CookingStation : MonoBehaviour, IInteractable
 
         isCooking  = false;
         hasOutput  = true;
+        
+        // Tắt khói khi nướng xong
+        if (smokeVFX != null) smokeVFX.Stop();
+        
         if (progressSlider)  progressSlider.value = 1f;
         
         if (audioSource != null && audioSource.isPlaying)

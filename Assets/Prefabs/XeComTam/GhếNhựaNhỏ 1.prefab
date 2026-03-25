@@ -1,5 +1,36 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &5168953757084325982
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 152778493558144256}
+  m_Layer: 6
+  m_Name: CHOT_NGOI
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &152778493558144256
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5168953757084325982}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: -0.003, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 4104807972704417618}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &4574967171066728633
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -82,7 +113,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
-    m_AddedGameObjects: []
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: -8679921383154817045, guid: 1d524de8012d55f459e0d993ad4c1b37, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 152778493558144256}
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 1d524de8012d55f459e0d993ad4c1b37, type: 3}
       insertIndex: -1
@@ -172,7 +206,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CustomerSeat
   linkedTable: {fileID: 0}
-  sitPoint: {fileID: 0}
+  sitPoint: {fileID: 152778493558144256}
 --- !u!114 &3963992675035378366
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -211,3 +245,8 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.15400639, y: 0.12965299, z: 0.15400639}
   m_Center: {x: 0, y: 0.00008077025, z: 0}
+--- !u!4 &4104807972704417618 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 1d524de8012d55f459e0d993ad4c1b37, type: 3}
+  m_PrefabInstance: {fileID: 4574967171066728633}
+  m_PrefabAsset: {fileID: 0}

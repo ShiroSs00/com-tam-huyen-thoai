@@ -471,6 +471,10 @@ MonoBehaviour:
   patienceBarPrefab: {fileID: 0}
   patienceBarObject: {fileID: 0}
   patienceFillImage: {fileID: 0}
+  footstepSounds:
+  - {fileID: 8300000, guid: 3ac7676ff0a7de64d939f9ffafa4aeb4, type: 3}
+  stepInterval: 0.4
+  footstepVolume: 0.2
 --- !u!4 &5254610468140236658 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: fc0fa75cef996304fa591edcf2a1d395, type: 3}

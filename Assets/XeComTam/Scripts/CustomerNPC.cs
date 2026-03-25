@@ -50,7 +50,7 @@ public class CustomerNPC : MonoBehaviour
 
     [Header("=== Debug & Visuals ===")]
     [SerializeField] private bool showGizmos = true;
-    
+
     [Tooltip("Danh sách các Prefab NPC 3D. Nếu trống, script sẽ tự sinh ra hình Capsule.")]
     [SerializeField] private GameObject[] npcPrefabs;
 
@@ -87,7 +87,7 @@ public class CustomerNPC : MonoBehaviour
     [Header("=== Order Bubble UI ===")]
     [Tooltip("Gắn nguyên cái Canvas/Panel tổng vào đây để bật/tắt")]
     [SerializeField] private GameObject orderBubble;
-    
+
     [Tooltip("0: Ráp hình Cơm Sườn | 1: Ráp hình Cơm Sườn Trứng")]
     [SerializeField] private GameObject[] orderVisuals;
 
@@ -110,6 +110,17 @@ public class CustomerNPC : MonoBehaviour
     private bool passedHalf;
     private Animator anim;
 
+    [Header("=== Audio ===")]
+    [Tooltip("m thanh bước chân (kéo thả các AudioClip vào đây)")]
+    [SerializeField] private AudioClip[] footstepSounds;
+    [Tooltip("Khoảng thời gian (giây) giữa 2 tiếng bước chân")]
+    [SerializeField] private float stepInterval = 0.4f;
+    [Tooltip("Điều chỉnh độ to nhỏ của tiếng bước chân (0 đến 1)")]
+    [Range(0f, 1f)][SerializeField] private float footstepVolume = 0.6f;
+
+    private AudioSource audioSource;
+    private float nextStepTime;
+
     // Walker state
     private Vector3 walkerDestination;
     private bool wantsToEat;
@@ -128,6 +139,13 @@ public class CustomerNPC : MonoBehaviour
 
         // Lấy Animator từ con hoặc chính nó để điều khiển Animation (Đi bộ / Ngồi)
         anim = GetComponentInChildren<Animator>();
+
+        // Tự động thêm Component âm thanh 3D nếu chưa có
+        audioSource = GetComponent<AudioSource>();
+        if (audioSource == null) audioSource = gameObject.AddComponent<AudioSource>();
+        audioSource.spatialBlend = 1f; // Âm thanh 3D, lại gần mới nghe to
+        audioSource.minDistance = 2f;
+        audioSource.maxDistance = 15f;
     }
 
     /// <summary>Khởi tạo visual + UI cho NPC (gọi khi bắt đầu routine)</summary>
@@ -179,7 +197,21 @@ public class CustomerNPC : MonoBehaviour
             // Tốc độ di chuyển (Đi bộ)
             if (agent != null && agent.enabled)
             {
-                anim.SetFloat("Speed", agent.velocity.magnitude);
+                float speed = agent.velocity.magnitude;
+                anim.SetFloat("Speed", speed);
+
+                // Phát âm thanh bước chân khi đang di chuyển
+                if (speed > 0.1f && footstepSounds != null && footstepSounds.Length > 0)
+                {
+                    if (Time.time >= nextStepTime)
+                    {
+                        AudioClip clip = footstepSounds[Random.Range(0, footstepSounds.Length)];
+                        // PlayOneShot cho phép phát đè (thuận tiện cho việc bước liên tục)
+                        audioSource.pitch = Random.Range(0.9f, 1.1f); // Nghe tự nhiên hơn
+                        audioSource.PlayOneShot(clip, footstepVolume * Random.Range(0.8f, 1.2f)); // Volume tùy chỉnh + Ngẫu nhiên nhẹ
+                        nextStepTime = Time.time + stepInterval;
+                    }
+                }
             }
         }
 
@@ -236,7 +268,7 @@ public class CustomerNPC : MonoBehaviour
         // --- Cài đặt NavMesh Agent ---
         NavMeshAgent npcAgent = npcGO.GetComponent<NavMeshAgent>();
         if (npcAgent == null) npcAgent = npcGO.AddComponent<NavMeshAgent>();
-        
+
         npcAgent.speed = Random.Range(2f, 4f);
         npcAgent.angularSpeed = 120f;
         npcAgent.stoppingDistance = 0.5f;
@@ -405,7 +437,15 @@ public class CustomerNPC : MonoBehaviour
         if (this == null) yield break;
 
         agent.enabled = false;
-        transform.position = assignedSeat.SitPoint.position;
+
+        // Trick chữa cháy: Sếp có thể hạ thẳng Tọa độ của Ông Khách khi ổng đặt mâm đít xuống ghế!
+        // Ghế nhựa lùn tịt nên ta ép ổng lún sâu xuống (ví dụ -0.3f hoặc -0.4f) để mông chạm mặt ghế.
+        float sitYOffset = -0.15f; // Sếp có thể tự gõ sửa số này nếu thấy khách lún sâu quá hoặc chưa tới ghế.
+
+        Vector3 finalSitPos = assignedSeat.SitPoint.position;
+        finalSitPos.y += sitYOffset; // Kéo tuột tọa độ Y xuống sâu thêm.
+
+        transform.position = finalSitPos;
         transform.rotation = assignedSeat.SitPoint.rotation;
 
         // --- Ngồi ---
@@ -425,7 +465,7 @@ public class CustomerNPC : MonoBehaviour
         // --- Gọi món ---
         currentOrder = (Random.Range(0f, 100f) < chanceToOrderBasic) ? OrderType.ComSuon : OrderType.ComSuonTrung;
         SetState(State.ShowOrder);
-        
+
         if (orderBubble) orderBubble.SetActive(true);
 
         // Hiển thị hình ảnh Order tương ứng
@@ -434,7 +474,7 @@ public class CustomerNPC : MonoBehaviour
             if (orderVisuals[0] != null) orderVisuals[0].SetActive(currentOrder == OrderType.ComSuon);
             if (orderVisuals[1] != null) orderVisuals[1].SetActive(currentOrder == OrderType.ComSuonTrung);
         }
-                
+
         Debug.Log($"[NPC] Khách vừa gọi món: {currentOrder}");
 
         // --- Chờ đồ ăn (với thanh kiên nhẫn) ---
